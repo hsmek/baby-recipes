@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baby Mash Kitchen</title>
+<meta name="description" content="Dairy-free baby recipes: mash, finger food and compotes, with done ticks and a shopping list.">
+<meta name="theme-color" content="#3A8A69">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Baby Mash Kitchen">
+<style>
+:root{
+  --bg:#F2F7F3; --surface:#FFFFFF; --ink:#22312B; --muted:#5B6D66; --line:#D5E2DA;
+  --accent:#3A8A69; --accent-ink:#FFFFFF; --accent-soft:#DAEFE3;
+  --like:#2C8A57; --like-soft:#D8F0E1; --nope:#B8493D; --nope-soft:#FAE1DC;
+  --fat-soft:#FBEBC2; --bowl:#EEE8DE; --bowl-edge:#D2C9BB;
+  --shadow:0 1px 2px rgba(34,49,43,.06),0 6px 18px rgba(34,49,43,.07);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#141C19; --surface:#1E2824; --ink:#E9F1ED; --muted:#9DB1A8; --line:#32423B;
+    --accent:#6CC4A0; --accent-ink:#0E1A15; --accent-soft:#25403A;
+    --fat-soft:#4A3F1F; --like:#6CCB93; --like-soft:#21392D; --nope:#F0948A; --nope-soft:#432723;
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 17px/1.5 "Nunito","SF Pro Rounded",ui-rounded,"Avenir Next","Segoe UI",system-ui,sans-serif}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,label:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+
+.app{max-width:720px;margin:0 auto;padding:18px 16px 120px}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+.top h1{font-size:26px;line-height:1.15;margin:0;font-weight:800;letter-spacing:-.01em}
+.status{font-size:14px;color:var(--muted)}
+.page-h{font-size:24px;margin:4px 0 12px;font-weight:800}
+.note{font-size:14px;color:var(--muted);margin:22px 0 0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border:0;border-radius:16px;
+  background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:18px}
+.ghost{min-height:48px;padding:0 16px;border:2px solid var(--line);border-radius:14px;background:var(--surface);font-weight:700;font-size:16px}
+.icon-btn{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);background:var(--surface);font-size:26px;line-height:1;display:grid;place-items:center;padding:0 0 3px}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;font-size:15px}
+
+/* illustrated picture */
+.pic{position:relative;overflow:hidden;border-radius:20px;aspect-ratio:4/3;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--mash,#ccc) 28%,var(--surface))}
+.pic svg,.pic img{width:100%;height:100%}
+.pic img{object-fit:cover}
+.pic .emoji{position:absolute;left:10px;top:8px;font-size:20px;background:var(--surface);border-radius:999px;padding:1px 9px;box-shadow:var(--shadow)}
+.pic.thumb{width:84px;aspect-ratio:1;border-radius:16px;flex:none}
+.pic.thumb .emoji{display:none}
+.pic.big{aspect-ratio:16/10;max-height:340px;margin-top:8px}
+
+/* week nav */
+.weeknav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
+.weeklabel{text-align:center;display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.weeklabel strong{font-size:19px}
+.weeklabel span{font-size:14px;color:var(--muted)}
+
+/* today hero */
+.hero{background:var(--surface);border-radius:26px;padding:12px 12px 18px;box-shadow:var(--shadow);margin-bottom:22px}
+.hero .pic{aspect-ratio:16/10;max-height:280px}
+.hero-text{padding:14px 8px 0}
+.hero-text p{margin:0;color:var(--muted);font-size:15px}
+.hero-text h2{margin:2px 0 6px;font-size:30px;line-height:1.15;font-weight:800}
+.hero-text .meta{margin-bottom:14px}
+.hero .btn{width:100%}
+
+.days{display:grid;gap:10px}
+.day{display:flex;align-items:center;gap:8px;background:var(--surface);border:2px solid transparent;border-radius:22px;padding:8px;box-shadow:var(--shadow)}
+.day.today{border-color:var(--accent)}
+.day-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left}
+.day-text{min-width:0;display:flex;flex-direction:column;gap:1px}
+.day-date{font-size:14px;color:var(--muted);font-weight:700}
+.day-name{font-size:19px;font-weight:800;line-height:1.2}
+.today-tag{display:inline-block;background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:12px;font-weight:800;padding:0 8px;margin-left:6px;vertical-align:2px}
+.meta{font-size:14px;color:var(--muted)}
+.day .ghost{min-height:44px;padding:0 14px}
+.badge{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:1px 10px;margin-top:3px;align-self:flex-start}
+.badge.yes{background:var(--like-soft);color:var(--like)}
+.badge.season{background:var(--accent-soft);color:var(--ink)}
+.badge.no{background:var(--nope-soft);color:var(--nope)}
+
+/* recipes */
+.search{width:100%;min-height:52px;border:2px solid var(--line);border-radius:16px;background:var(--surface);padding:0 16px;margin-bottom:12px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.fchip{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font-weight:700}
+.fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.rcard{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--surface);border:0;border-radius:22px;padding:8px 8px 14px;box-shadow:var(--shadow)}
+.rcard .rc-text{display:flex;flex-direction:column;gap:1px;padding:0 6px}
+.rcard strong{font-size:17px;line-height:1.25}
+.empty{grid-column:1/-1;color:var(--muted);padding:24px 4px}
+
+/* shopping */
+.progress{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.progress div{height:100%;background:var(--accent);transition:width .2s}
+.prog-text{font-size:14px;color:var(--muted);margin:0 0 6px}
+.aisle h2{font-size:20px;margin:22px 0 10px}
+.shop-item{position:relative;display:flex;align-items:center;gap:14px;min-height:62px;padding:10px 14px;margin-bottom:8px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);cursor:pointer}
+.shop-item input{position:absolute;opacity:0;width:1px;height:1px}
+.box{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--muted);display:grid;place-items:center;color:var(--accent-ink);font-weight:800}
+.shop-item input:checked + .box{background:var(--accent);border-color:var(--accent)}
+.shop-item input:checked + .box::after{content:"✓"}
+.shop-item .txt{display:flex;flex-direction:column;line-height:1.3}
+.shop-item .txt strong{font-size:19px}
+.shop-item .txt small{color:var(--muted);font-size:13px}
+.shop-item.done .txt strong{text-decoration:line-through;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 0}
+
+/* bottom tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.tabs-in{max-width:720px;margin:0 auto;display:flex;gap:4px}
+.tab{flex:1;min-height:58px;border:0;border-radius:16px;background:transparent;color:var(--muted);font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:12.5px;line-height:1.15;padding:0 2px;text-align:center}
+.tab span{font-size:22px;line-height:1.2}
+.tab[aria-current="page"]{background:var(--accent-soft);color:var(--ink)}
+
+/* overlays */
+.overlay{position:fixed;inset:0;background:var(--bg);overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+.overlay.open{display:block}
+#sheet{z-index:30}
+#picker{z-index:40}
+.sheet-bar{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px}
+.sheet-bar-in{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.back{min-height:48px;padding:0 18px 0 12px;border:2px solid var(--line);border-radius:14px;background:var(--surface);font-weight:800;font-size:17px}
+.detail,.pad{max-width:720px;margin:0 auto;padding:12px 16px 90px}
+.detail h1,.pad h1{font-size:30px;line-height:1.15;margin:16px 0 10px;font-weight:800}
+.detail h2{font-size:22px;margin:30px 0 10px;font-weight:800}
+.detail h2 small{font-size:14px;font-weight:600;color:var(--muted);margin-left:6px}
+.photo-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--accent-soft);border-radius:999px;padding:4px 14px;font-weight:700;font-size:15px}
+.chip.fat{background:var(--fat-soft)}
+.badge.iron,.chip.iron{background:var(--like-soft);color:var(--like)}
+.chip.warn{background:var(--nope-soft);color:var(--nope)}
+.srcbox{margin-top:22px;padding:14px 16px;border:2px solid var(--line);border-radius:16px;background:var(--surface);font-size:15px}
+.srcbox strong{display:block;margin-bottom:2px}
+.srcbox a{color:var(--accent);font-weight:700}
+.srcbox p{margin:6px 0 0;color:var(--muted)}
+.ings{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.ings li{background:var(--surface);border-radius:14px;padding:12px 16px;font-size:19px;box-shadow:var(--shadow)}
+.ings li.pantry{color:var(--muted)}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:16px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:38px 1fr;gap:14px;font-size:20px;line-height:1.5}
+.steps li::before{content:counter(s);width:38px;height:38px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:18px}
+.daychips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dchip{min-height:66px;border:2px solid var(--line);border-radius:14px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;font-weight:700;line-height:1.2}
+.dchip small{font-size:12px;color:var(--muted);font-weight:700}
+.dchip b{font-size:19px}
+.dchip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.fb-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fb-btn{min-height:68px;border:2px solid var(--line);border-radius:18px;background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:18px;padding:0 8px}
+.fb-btn .cb{width:28px;height:28px;border-radius:8px;border:2px solid var(--muted);display:grid;place-items:center;font-size:17px;flex:none}
+.fb-btn[aria-pressed="true"] .cb::after{content:"✓";color:#fff;font-weight:800}
+.fb-btn.yes[aria-pressed="true"]{background:var(--like-soft);border-color:var(--like)}
+.fb-btn.yes[aria-pressed="true"] .cb{background:var(--like);border-color:var(--like)}
+.fb-btn.no[aria-pressed="true"]{background:var(--nope-soft);border-color:var(--nope)}
+.fb-btn.no[aria-pressed="true"] .cb{background:var(--nope);border-color:var(--nope)}
+.lbl{display:block;font-weight:800;margin:20px 0 8px}
+textarea{width:100%;min-height:130px;border:2px solid var(--line);border-radius:16px;background:var(--surface);padding:14px;resize:vertical;line-height:1.5}
+.plist{display:grid;gap:10px;margin-top:12px}
+.prow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:2px solid transparent;border-radius:18px;padding:8px;box-shadow:var(--shadow)}
+.prow.current{border-color:var(--accent)}
+.prow strong{font-size:18px;line-height:1.25}
+.prow .meta{display:block}
+
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;font-size:15px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:380px){.pic.thumb{width:68px}.day-name{font-size:17px}}
+
+.rcard{position:relative}
+.rc-open{display:flex;flex-direction:column;gap:8px;text-align:left;background:none;border:0;padding:0;width:100%}
+.rc-done{position:absolute;top:14px;right:14px;width:46px;height:46px;border-radius:50%;border:2px solid var(--muted);background:var(--surface);color:transparent;font-size:24px;font-weight:800;display:grid;place-items:center;padding:0}
+.rc-done[aria-pressed="true"]{background:var(--like);border-color:var(--like);color:#fff}
+.rcard.done .pic{opacity:.7}
+.badge.done{background:var(--like);color:#fff}
+.schip{min-height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font-weight:700}
+.schip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.doneline{margin:-4px 0 12px;color:var(--muted);font-size:15px}
+.done-btn{width:100%;min-height:68px;border:2px solid var(--line);border-radius:18px;background:var(--surface);display:flex;align-items:center;justify-content:center;gap:12px;font-weight:800;font-size:19px}
+.done-btn .cb{width:30px;height:30px;border-radius:9px;border:2px solid var(--muted);display:grid;place-items:center;flex:none;font-size:18px;color:#fff}
+.done-btn[aria-pressed="true"]{background:var(--like-soft);border-color:var(--like)}
+.done-btn[aria-pressed="true"] .cb{background:var(--like);border-color:var(--like)}
+.done-btn[aria-pressed="true"] .cb::after{content:"✓";font-weight:800}
+.gap{margin-top:12px}
+.wide{width:100%}
+.h3{font-size:18px;margin:22px 0 10px;font-weight:800}
+.basket{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.bchip{display:inline-flex;align-items:center;gap:4px;background:var(--accent-soft);border-radius:999px;padding:2px 4px 2px 14px;font-weight:700;font-size:15px}
+.bchip button{width:36px;height:36px;border:0;background:none;font-size:22px;line-height:1;border-radius:50%}
+.empty-card{background:var(--surface);border-radius:20px;padding:18px 20px;box-shadow:var(--shadow);color:var(--muted)}
+.empty-card p{margin:0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <h1>Baby Mash Kitchen</h1>
+    <span class="status" id="status" aria-live="polite"></span>
+  </div>
+  <main id="main"><p class="meta">Loading…</p></main>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <div class="tabs-in">
+    <button class="tab" data-action="tab" data-tab="recipes"><span aria-hidden="true">🥣</span>Mash</button>
+    <button class="tab" data-action="tab" data-tab="fingers"><span aria-hidden="true">🧇</span>Finger food</button>
+    <button class="tab" data-action="tab" data-tab="compotes"><span aria-hidden="true">🍎</span>Compotes</button>
+    <button class="tab" data-action="tab" data-tab="shop"><span aria-hidden="true">🛒</span>Shopping</button>
+  </div>
+</nav>
+
+<div id="sheet" class="overlay" role="dialog" aria-modal="true" aria-label="Recipe"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Saves ticks, notes, likes, photos and the shopping list in this browser (localStorage)
+   when the page is hosted outside Claude. Inside Claude, window.storage is used instead. */
+(function(){
+  if(typeof window.storage!=='undefined') return;
+  try{
+    localStorage.setItem('__bmk_test','1'); localStorage.removeItem('__bmk_test');
+    window.storage={
+      get:async function(k){const v=localStorage.getItem(k); if(v===null) throw new Error('not found'); return {key:k,value:v};},
+      set:async function(k,v){localStorage.setItem(k,v); return {key:k,value:v};}
+    };
+  }catch(e){ /* storage blocked (e.g. private browsing): the page still works, but nothing is kept */ }
+})();
+</script>
+<script>
+/* ---------- Recipe data ---------- */
+const V='Fruit & veg', F='Fresh', Z='Frozen', C='Cupboard';
+const WATER=["cooking water",3,'tbsp','skip'];
+const R=(id,name,type,emoji,color,prep,cook,makes,ing,steps)=>({id,name,type,emoji,color,prep,cook,makes,ing,steps});
+const ALL=[1,2,3,4,5,6,7,8,9,10,11,12];
+const rng=(a,b)=>{const o=[];let m=a;for(;;){o.push(m);if(m===b)break;m=m%12+1;}return o;};
+const RECIPES=[
+R('stoemp-carrot','Carrot stoemp (carrot & potato)','Veg','🥕🥔','#F3B069',10,20,'about 6 portions',
+  [['carrot|carrots',2,'',V],['potato|potatoes',2,'',V],WATER],
+  ['Peel and chop the carrots and potatoes into even chunks.','Boil or steam for 15–20 minutes until completely soft.','Mash with a fork, adding a splash of cooking water. Blend instead for a smoother texture.','Cool and test the temperature before serving. Stoemp is traditionally a little chunky, so mash less as baby gets older.']),
+R('stoemp-leek','Leek stoemp (leek & potato)','Veg','🥔','#D9E3B5',10,20,'about 6 portions',
+  [['leek|leeks',1,'',V],['potato|potatoes',2,'',V],WATER],
+  ['Wash the leek well and slice the white and pale green parts. Peel and chop the potatoes.','Boil the potatoes for 10 minutes, add the leek and cook for 8 more.','Drain, keeping some water, and mash or blend until smooth.','Cool before serving.']),
+R('kale-potato','Kale & potato (boerenkool)','Veg','🥬🥔','#7FA66B',10,20,'about 6 portions',
+  [['curly kale',80,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Strip the kale leaves from the tough stalks and chop finely. Peel and chop the potatoes.','Boil the potatoes for 12 minutes, add the kale and cook for 8 more until very soft.','Drain, keeping some water, and blend until completely smooth.','Sieve if any fibres remain. Cool before serving.']),
+R('sprout-potato','Brussels sprout & potato','Veg','🥬🥔','#A9C98A',10,20,'about 6 portions',
+  [['Brussels sprouts',150,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Trim the sprouts, remove the tough outer leaves and halve them. Peel and chop the potatoes.','Boil the potatoes for 10 minutes, add the sprouts and cook for 10 more until very soft.','Drain, keeping some water, and blend until smooth.','Cool and serve. Mild, but may cause a little wind in some babies.']),
+R('pumpkin','Pumpkin mash','Veg','🎃','#F2A83C',10,20,'about 6 portions',
+  [['pumpkin',400,'g',V],WATER],
+  ['Peel, deseed and chop the pumpkin into small chunks.','Steam for 15–20 minutes until completely soft.','Mash or blend with a splash of cooking water.','Cool and serve. This one freezes really well.']),
+R('pumpkin-carrot','Pumpkin & carrot','Veg','🎃🥕','#F4B860',10,20,'about 6 portions',
+  [['pumpkin',300,'g',V],['carrot|carrots',1,'',V],WATER],
+  ['Peel, deseed and chop the pumpkin. Peel and chop the carrot.','Steam both for 15–20 minutes until soft.','Blend until smooth with a splash of cooking water.','Cool before serving.']),
+R('celeriac-potato','Celeriac & potato (knolselder)','Veg','🥔','#E6DCC0',10,20,'about 6 portions',
+  [['celeriac',200,'g',V],['potato|potatoes',1,'',V],WATER],
+  ['Peel the celeriac thickly and chop into small chunks. Peel and chop the potato.','Boil or steam for 15–20 minutes until very soft.','Blend until smooth with a splash of cooking water.','Cool and serve. A mild, nutty flavour.']),
+R('parsnip-potato','Parsnip & potato','Veg','🥔','#F1E3B8',10,20,'about 6 portions',
+  [['parsnip|parsnips',2,'',V],['potato|potatoes',1,'',V],WATER],
+  ['Peel and chop the parsnips and potato into small chunks.','Steam or boil for 15–20 minutes until very soft.','Mash or blend with a splash of cooking water.','Cool and serve. Parsnips add a gentle natural sweetness.']),
+R('carrot-parsnip','Carrot & parsnip','Veg','🥕','#F3B069',10,20,'about 6 portions',
+  [['carrot|carrots',2,'',V],['parsnip|parsnips',1,'',V],WATER],
+  ['Peel and chop the carrots and parsnip into small chunks.','Steam for 15–20 minutes until soft.','Blend with a splash of cooking water until smooth.','Cool and serve. Freeze the rest.']),
+R('beetroot-potato','Beetroot & potato','Veg','🟣🥔','#C65B83',10,25,'about 5 portions',
+  [['beetroot|beetroots',2,'',V],['potato|potatoes',1,'',V],WATER],
+  ['Wearing gloves if you like, peel and chop the beetroot. Peel and chop the potato.','Steam the beetroot for 20 minutes, add the potato and steam for 5 more, or until both are soft.','Blend until smooth.','Cool and serve. Beetroot stains, so expect pink and maybe a bib change.']),
+R('cauliflower-potato','Cauliflower & potato','Veg','🥦🥔','#EFE6C6',10,15,'about 5 portions',
+  [['cauliflower',200,'g',V],['potato|potatoes',1,'',V],WATER],
+  ['Break the cauliflower into small florets. Peel and chop the potato.','Boil or steam for 12–15 minutes until very soft.','Blend with a splash of cooking water until smooth.','Cool and serve.']),
+R('broccoli-potato','Broccoli & potato','Veg','🥦🥔','#A9CF8A',10,15,'about 6 portions',
+  [['broccoli',150,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Peel and chop the potatoes and boil for 10 minutes.','Add the broccoli florets and cook for 5 more minutes until tender.','Drain, keeping some water, and blend until smooth.','Cool before serving.']),
+R('savoy-potato','Savoy cabbage & potato','Veg','🥬🥔','#B5D08F',10,20,'about 6 portions',
+  [['savoy cabbage',150,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Remove the tough core and shred the cabbage finely. Peel and chop the potatoes.','Boil the potatoes for 10 minutes, add the cabbage and cook for 8 more until very soft.','Drain, keeping some water, and blend until smooth.','Cool before serving.']),
+R('chicory-carrot-potato','Chicory, carrot & potato (witloof)','Veg','🥕🥔','#EBD79A',10,25,'about 6 portions',
+  [['chicory|chicory',2,'',V],['carrot|carrots',1,'',V],['potato|potatoes',2,'',V],WATER],
+  ['Cut out the bitter core from each chicory and chop the rest. Peel and chop the carrot and potatoes.','Boil the potatoes and carrot for 10 minutes, add the chicory and cook for 12 more until very soft.','Drain, keeping some water, and blend until smooth. The carrot softens the slight bitterness.','Cool before serving.']),
+R('courgette-potato','Courgette & potato','Veg','🥒🥔','#D2E3A1',10,15,'about 6 portions',
+  [['courgette|courgettes',2,'',V],['potato|potatoes',1,'',V],WATER],
+  ['Peel and chop the potato and boil for 8 minutes.','Chop the courgettes, add them to the pan and cook for 5 more minutes.','Drain, keeping some water, and blend until smooth.','Cool before serving.']),
+R('green-bean-potato','Green bean & potato','Veg','🫛🥔','#BFD98B',10,15,'about 6 portions',
+  [['green beans',100,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Peel and chop the potatoes. Trim the beans and cut into short pieces.','Boil the potatoes for 8 minutes, add the beans and cook for 7 more until very soft.','Drain, keeping some water, and blend until smooth. Sieve if any bean skins remain.','Cool before serving.']),
+R('pea-mint','Pea & mint','Veg','🟢🌿','#9CCB6B',10,15,'about 6 portions',
+  [['peas (fresh or frozen)',200,'g',V],['potato|potatoes',1,'',V],['fresh mint',2,'sprig',V],WATER],
+  ['Peel and chop the potato, then boil for about 10 minutes.','Add the peas for the last 3 minutes. Drain, keeping some of the water.','Blend with the mint leaves and a splash of the cooking water until smooth.','Cool before serving. Sieve if baby finds the skins gritty.']),
+R('spinach-potato','Spinach & potato','Veg','🥬🥔','#8FB86A',10,15,'about 6 portions',
+  [['spinach',100,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Peel and chop the potatoes and boil for 10 minutes.','Add the washed spinach for the last 2 minutes so it wilts.','Drain, keeping some water, and blend until very smooth.','Cool and serve.']),
+R('asparagus-potato','White asparagus & potato','Veg','🥔','#F0E8C4',15,20,'about 5 portions',
+  [['white asparagus',250,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Peel the asparagus thoroughly and snap off the woody ends. Chop the spears. Peel and chop the potatoes.','Boil the potatoes for 10 minutes, add the asparagus and cook for 10 more until very soft.','Drain, keeping some water, and blend until smooth. Push through a sieve to remove any stringy fibres.','Cool and serve. A spring treat.']),
+R('mushroom-potato','Mushroom & potato','Veg','🍄🥔','#C9B79C',10,20,'about 5 portions',
+  [['chestnut mushrooms',100,'g',V],['potato|potatoes',2,'',V],WATER],
+  ['Wipe the mushrooms clean and chop them. Peel and chop the potatoes.','Simmer the potatoes for 10 minutes, add the mushrooms and cook for 8 more.','Drain, keeping some liquid, and blend until completely smooth.','Cool before serving.']),
+R('kohlrabi-potato','Kohlrabi & potato (koolrabi)','Veg','🥔','#CFE0A8',10,20,'about 6 portions',
+  [['kohlrabi|kohlrabi',2,'',V],['potato|potatoes',1,'',V],WATER],
+  ['Peel the kohlrabi thickly and chop into small chunks. Peel and chop the potato.','Boil or steam for 15–20 minutes until very soft.','Blend until smooth with a splash of cooking water.','Cool and serve. Mild and slightly sweet.']),
+R('chicken-waterzooi','Chicken waterzooi mash','Protein','🍗🥕','#F1D9A0',15,30,'about 6 portions',
+  [['chicken breast',120,'g',F],['leek|leeks',1,'',V],['carrot|carrots',1,'',V],['potato|potatoes',1,'',V],['celery stick|celery sticks',1,'',V],WATER],
+  ['Dice the chicken. Wash and slice the leek, and peel and chop the carrot and potato. Chop the celery finely.','Simmer everything in water for 25 minutes until the chicken is cooked through with no pink inside and the vegetables are very soft.','Blend with some of the cooking liquid until completely smooth. This is a dairy-free version of the classic Flemish stew.','Cool and serve. Freeze in small portions and reheat until steaming, then cool.']),
+R('cod-leek-potato','Cod, leek & potato','Protein','🐟🥔','#EBE3CF',10,20,'about 4 portions',
+  [['white fish fillet (cod or pollock)',100,'g',F],['leek|leeks',1,'',V],['potato|potatoes',1,'',V],['olive oil',1,'tsp','skip'],WATER],
+  ['Wash and slice the leek. Peel and chop the potato.','Boil the potato for 8 minutes, add the leek and cook for 5 more, then add the skinless fish for 5 minutes until it flakes.','Flake the fish, checking carefully for bones. Blend or mash with a teaspoon of olive oil and a splash of cooking water.','Cool and serve. Fish is an allergen, so introduce it on its own first.']),
+R('chicken-carrot-potato','Chicken, carrot & potato','Protein','🍗🥕','#F1C98E',15,25,'about 6 portions',
+  [['chicken breast',120,'g',F],['carrot|carrots',2,'',V],['potato|potatoes',1,'',V],WATER],
+  ['Dice the chicken. Peel and chop the carrots and potato.','Simmer everything in water for 20–25 minutes until the chicken is cooked through with no pink inside.','Blend with some of the cooking liquid until smooth.','Cool and serve. Freeze in small portions and reheat until steaming, then cool.']),
+R('beef-carrot-celeriac','Beef, carrot & celeriac','Protein','🥩🥕','#D9A77C',15,30,'about 6 portions',
+  [['beef mince',100,'g',F],['carrot|carrots',2,'',V],['celeriac',150,'g',V],WATER],
+  ['Peel and chop the carrots and celeriac into small chunks.','Simmer the vegetables and mince in water for 25–30 minutes, breaking up the mince, until the beef is cooked through and everything is very soft.','Blend with some of the cooking liquid until smooth.','Cool and serve. A good source of iron.']),
+R('chickpea-carrot','Chickpea & carrot','Protein','🥕🫘','#E9B96B',10,18,'about 6 portions',
+  [['no-added-salt chickpeas',1,'tin',C],['carrot|carrots',2,'',V],WATER],
+  ['Peel and chop the carrots and boil for 15 minutes. Drain and rinse the chickpeas well.','Add about half the chickpeas for the last 3 minutes. Freeze or save the rest.','Blend with some cooking water until very smooth, then sieve to remove skins.','Cool before serving.']),
+R('lentil-carrot','Red lentil & carrot','Protein','🥕','#EBA05E',10,25,'about 6 portions',
+  [['red lentils',50,'g',C],['carrot|carrots',2,'',V],['potato|potatoes',1,'',V],WATER],
+  ['Rinse the lentils. Peel and chop the carrots and potato.','Simmer all together in water for 20–25 minutes until the lentils are soft.','Blend or mash with some of the cooking liquid.','Cool and serve. A good way to add iron.'])
+];
+const COMPOTES=[
+R('apple-pear','Apple & pear compote','Compote','🍎🍐','#EBD98C',10,10,'about 4 portions',
+  [['apple|apples',2,'',V],['pear|pears',2,'',V],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the apples and pears.','Simmer with the water, lid on, for 8–10 minutes until very soft.','Mash with a fork or blend to the texture you like.','Cool before serving. Lovely on its own or stirred into a dairy-free porridge.']),
+R('apple-cinnamon','Apple & cinnamon compote','Compote','🍎','#E4C98A',10,12,'about 5 portions',
+  [['apple|apples',3,'',V],['ground cinnamon',0.5,'tsp',C],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the apples.','Simmer with the water and cinnamon for 10–12 minutes until very soft.','Mash with a fork or blend.','Cool and serve. A little cinnamon goes a long way.']),
+R('pear-cinnamon','Pear & cinnamon compote','Compote','🍐','#E8DDA0',10,10,'about 5 portions',
+  [['pear|pears',3,'',V],['ground cinnamon',0.5,'tsp',C],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the pears.','Simmer with the water and cinnamon for 8–10 minutes until very soft.','Mash or blend until smooth.','Cool before serving.']),
+R('apple-blueberry','Apple & blueberry compote','Compote','🍎🫐','#A98FC0',10,10,'about 4 portions',
+  [['apple|apples',2,'',V],['blueberries',100,'g',V],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the apples.','Simmer the apples with the water for 5 minutes, then add the blueberries and cook for 5 more until they burst.','Mash or blend to your preferred texture.','Cool and serve. It will stain, so protect clothes.']),
+R('plum-apple','Plum & apple compote','Compote','🍑🍎','#B76A8C',10,12,'about 4 portions',
+  [['ripe plum|ripe plums',3,'',V],['apple|apples',1,'',V],["water",2,'tbsp','skip']],
+  ['Stone and chop the plums. Peel, core and chop the apple.','Simmer with the water for 10–12 minutes until the plums collapse.','Mash well, and remove any bits of plum skin if you like.','Cool and serve. Plums can be a little tart, which the apple balances.']),
+R('raspberry-pear','Raspberry & pear compote','Compote','🫐🍐','#E0708A',10,10,'about 4 portions',
+  [['raspberries',100,'g',V],['pear|pears',2,'',V],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the pears.','Simmer the pears with the water for 6 minutes, add the raspberries and cook for 4 more.','Blend, then push through a sieve to remove the seeds.','Cool and serve.']),
+R('pear-blackberry','Pear & blackberry compote','Compote','🍐🫐','#8E6AA8',10,10,'about 4 portions',
+  [['pear|pears',2,'',V],['blackberries',100,'g',V],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the pears.','Simmer the pears with the water for 6 minutes, add the blackberries and cook for 4 more.','Blend, then push through a sieve to remove the seeds.','Cool and serve.']),
+R('strawberry-apple','Strawberry & apple compote','Compote','🍓🍎','#EE8F96',10,10,'about 4 portions',
+  [['strawberries',150,'g',V],['apple|apples',2,'',V],["water",2,'tbsp','skip']],
+  ['Peel, core and chop the apples. Hull and halve the strawberries.','Simmer the apples with the water for 5 minutes, add the strawberries and cook for 5 more.','Mash or blend until smooth.','Cool and serve. Strawberries can occasionally cause a mild rash around the mouth, so watch for it.']),
+R('cherry-apple','Cherry & apple compote','Compote','🍒🍎','#C2475E',15,10,'about 4 portions',
+  [['cherries',150,'g',V],['apple|apples',1,'',V],["water",2,'tbsp','skip']],
+  ['Stone the cherries carefully and check no pit pieces remain. Peel, core and chop the apple.','Simmer with the water for 8–10 minutes until soft.','Mash or blend until smooth.','Cool and serve.']),
+R('apricot-apple','Apricot & apple compote','Compote','🍑🍎','#F5B766',10,12,'about 4 portions',
+  [['fresh apricot|fresh apricots',4,'',V],['apple|apples',1,'',V],["water",2,'tbsp','skip']],
+  ['Stone and chop the apricots. Peel, core and chop the apple.','Simmer with the water for 10–12 minutes until soft.','Mash or blend until smooth.','Cool before serving.'])
+];
+const SEASON={
+ 'stoemp-leek':rng(9,4),'kale-potato':rng(10,3),'sprout-potato':rng(10,3),'pumpkin':rng(9,2),'pumpkin-carrot':rng(9,2),
+ 'celeriac-potato':rng(10,4),'parsnip-potato':rng(10,3),'carrot-parsnip':rng(10,4),'beetroot-potato':rng(6,2),
+ 'cauliflower-potato':rng(5,12),'broccoli-potato':rng(6,11),'savoy-potato':rng(9,3),'chicory-carrot-potato':rng(10,4),
+ 'courgette-potato':rng(6,10),'green-bean-potato':rng(6,10),'pea-mint':rng(5,9),'spinach-potato':[4,5,6,9,10,11],
+ 'asparagus-potato':rng(4,6),'mushroom-potato':rng(9,1),'kohlrabi-potato':rng(5,10),'chicken-waterzooi':rng(9,4),
+ 'cod-leek-potato':rng(9,4),'beef-carrot-celeriac':rng(10,4),
+ 'apple-pear':rng(8,4),'apple-cinnamon':rng(9,4),'pear-cinnamon':rng(9,2),'apple-blueberry':rng(7,10),'plum-apple':rng(8,10),
+ 'raspberry-pear':rng(7,10),'pear-blackberry':rng(8,10),'strawberry-apple':rng(5,7),'cherry-apple':rng(6,8),'apricot-apple':rng(7,8)
+};
+const FR=(id,name,emoji,color,prep,cook,makes,ing,steps,extra)=>Object.assign(R(id,name,'Finger',emoji,color,prep,cook,makes,ing,steps),extra);
+const DK="The Doctor's Kitchen (Dr Rupy Aujla)";
+const BLF="Baby Led Feeding (Aileen Cox Blundell, registered nutritionist)";
+const NHS="NHS Start for Life";
+const FINGERS=[
+FR('sardine-pea-quinoa','Sardine, pea & quinoa fritters','🐟🟢','#B9CFA0',10,15,'about 16 small fritters',
+  [['sardines in olive oil (no added salt)',100,'g',C],['frozen peas, defrosted',100,'g',Z],['dried tarragon',1,'tsp',C],['egg|eggs',2,'',F],['chickpea (gram) flour',2,'tbsp',C],['cooked quinoa',100,'g',C],['olive oil, for frying',1,'tbsp','skip']],
+  ['Mash the sardines very well in a bowl, breaking up every piece of soft bone.','Add the peas and mash again.','Stir in the tarragon, eggs, chickpea flour and cooked quinoa.','Heat the olive oil in a frying pan over medium-high heat. Spoon in about 2 tablespoons of batter per fritter and fry for 3–4 minutes on each side until golden and cooked through.','Cool before serving. They keep for 3 days in the fridge.'],
+  {kind:'Fish & meat',fats:'sardines, olive oil',allergens:'fish, egg',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/sardine-pea-and-quinoa-weaning-fritters',note:'Quantities and method as in the original. I specify sardines with no added salt.'}}),
+FR('beef-courgette-meatballs','Beef & courgette meatballs','🥩🥒','#C98E6B',15,10,'about 12 small meatballs',
+  [['beef mince',200,'g',F],['courgette (or carrot in winter), grated',70,'g',V],['white onion',70,'g',V],['garlic clove|garlic cloves',1,'',V],['dried oregano',1,'tsp',C],['sundried tomato paste',1,'tbsp',C],['olive oil',1,'tbsp','skip']],
+  ['Heat the oven to 200°C (180°C fan).','Grate the courgette and onion, then squeeze out the liquid with your hands or press through a sieve.','Mix everything in a bowl, including the oil and the finely grated garlic.','Shape into small balls of about 25 g, or into short fingers that are easier for baby to grip.','Bake for 10 minutes until firm and darkened. Cut one open to check there is no pink.','Cool before serving. Check the tomato paste label for dairy and added salt.'],
+  {kind:'Fish & meat',fats:'beef, olive oil',allergens:'',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/beef-and-courgette-weaning-meatballs',note:'I halved the original quantities, added a spoon of olive oil, and suggest grated carrot when courgettes are out of season.'}}),
+FR('lemony-chicken-strips','Lemony chicken strips','🍗🍋','#F0D58B',10,20,'about 6 strips',
+  [['chicken breast or boneless thigh',150,'g',F],['lemon|lemons',1,'',V],['olive oil',1,'tbsp','skip']],
+  ['Heat the oven to 200°C.','Slice the chicken into finger-sized strips, big enough for baby to hold with half sticking out of the fist.','Place on a baking tray, drizzle with the olive oil and squeeze the lemon juice over.','Bake for 15–20 minutes until fully cooked through with no pink inside, and tender. Herbs can be added before cooking for variety.','Cool before serving. Chicken thigh stays juicier than breast.'],
+  {kind:'Fish & meat',fats:'olive oil',allergens:'',src:{name:NHS,url:'https://www.nhs.uk/best-start-in-life/baby/recipes-and-meal-ideas/lemony-chicken-strips/',note:'Method as in the NHS recipe. I added olive oil for healthy fat and allow chicken thigh.'}}),
+FR('omelette-fingers','Leek omelette fingers','🥚🥬','#F6DD7E',5,8,'about 6 fingers',
+  [['egg|eggs',2,'',F],['leek|leeks',0.5,'',V],['rapeseed oil',1,'tbsp','skip']],
+  ['Beat the eggs in a bowl.','Wash and finely chop the leek. Heat the oil in a frying pan and cook the leek until soft, 3–4 minutes.','Pour in the eggs and cook for 2–3 minutes until set with a golden base.','Let it cool a little, then cut into finger-sized slices.','Leftovers keep in the fridge for a day as a light snack.'],
+  {kind:'Egg bites',fats:'rapeseed oil, egg yolk',allergens:'egg',src:{name:NHS,url:'https://www.nhs.uk/best-start-in-life/baby/recipes-and-meal-ideas/omelette-fingers/',note:'The NHS recipe uses onion and pepper. I swapped in leek, which is in season in Belgium, and chose the amounts.'}}),
+FR('spinach-leek-egg-muffins','Spinach & leek egg muffins','🥚🥬','#A9C77A',10,30,'6 muffins',
+  [['leek|leeks',150,'g',V],['baby spinach',75,'g',V],['dried oregano',1,'tsp',C],['egg|eggs',3,'',F],['olive oil',1,'tbsp','skip']],
+  ['Heat the oven to 200°C (180°C fan). Line a muffin tin with paper cases, or grease with a little olive oil.','Finely dice the leek. Heat a drizzle of olive oil in a pan and cook the leek for 7–8 minutes until soft.','Add the sliced spinach and cook for 3–4 more minutes until wilted. Stir in the oregano and let it cool slightly.','Whisk the eggs in a bowl and stir in the cooled vegetables.','Pour into the tin and bake for 18–20 minutes until set and lightly golden. Cool before serving.','For younger babies chop the vegetables very finely, and leave them chunkier as baby gets older.'],
+  {kind:'Egg bites',fats:'olive oil, egg yolk',allergens:'egg',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/spinach-and-pepper-egg-weaning-muffins',note:'The original uses red pepper (150 g). I swapped in leek, which is in season here from autumn to spring. Pepper works in summer.'}}),
+FR('egg-broccoli-muffins','Egg & broccoli muffins','🥚🥦','#B8D58E',10,30,'6 muffins',
+  [['broccoli florets',200,'g',V],['egg|eggs',4,'',F],['nutritional yeast flakes (optional)',2,'tbsp',C],['olive oil',1,'tbsp','skip']],
+  ['Heat the oven to 200°C (180°C fan). Line a muffin tin with paper cases, or grease with olive oil.','Simmer the broccoli florets in about 2 cm of water for 8–10 minutes until tender and the water has evaporated.','Mash the broccoli with a fork: rougher for older babies, very smooth for babies just starting. Let it cool slightly.','Whisk the eggs with the nutritional yeast and a spoon of olive oil, then stir in the broccoli.','Pour into the tin and bake for 18–20 minutes until set and lightly golden. Cool before serving.'],
+  {kind:'Egg bites',fats:'olive oil, egg yolk',allergens:'egg',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/egg-and-broccoli-weaning-muffins',note:'Ingredients and method as in the original. I chose the amounts and added olive oil for healthy fat.'}}),
+FR('veg-pancakes','Roast veg pancakes','🥞🥕','#F0B67A',15,45,'about 8 small pancakes',
+  [['plain flour (or buckwheat)',125,'g',C],['baking powder',1,'tsp',C],['egg|eggs',1,'',F],["water or your baby's usual milk",150,'ml','skip'],['leek|leeks',0.5,'',V],['carrot|carrots',1,'',V],['broccoli',80,'g',V],['rapeseed oil',2,'tbsp','skip']],
+  ['Heat the oven to 200°C. Cut the leek and carrot into large chunks, toss with a spoon of oil and roast for 25–30 minutes until soft and starting to brown.','Steam the broccoli until soft. Chop all the cooked vegetables into tiny, baby-sized pieces.','Whisk the flour, baking powder, liquid, egg and a spoon of oil into a batter. Fold the vegetables through. It should be much thicker than normal pancake batter.','Heat a little oil in a frying pan and cook small spoonfuls for a few minutes on each side until golden and set.','Cool, then cut into strips or small rounds. Press one between finger and thumb first: it should squash easily.'],
+  {kind:'Waffles & pancakes',fats:'rapeseed oil, egg yolk',allergens:'egg, wheat',src:{name:BLF,url:'https://www.babyledfeeding.com/recipe/vegetable-pancakes/',note:'The original uses whole milk, melted butter and a little cheddar, with broccoli, pepper and onion. I used oil and dairy-free liquid, left out the cheese, and swapped in leek and carrot. Amounts other than the flour are mine.'}}),
+FR('carrot-potato-waffles','Carrot & potato waffles','🧇🥕','#EDA860',15,20,'about 8 small waffles',
+  [['carrot|carrots',2,'',V],['potato|potatoes',1,'',V],['onion|onions',0.5,'',V],['garlic clove|garlic cloves',1,'',V],['plain flour',4,'tbsp',C],['dried thyme',1,'tsp',C],['egg|eggs',2,'',F],['rapeseed oil',2,'tbsp','skip']],
+  ['Heat your waffle iron to medium-high. No waffle iron? Bake spoonfuls on a lined tray at 180°C for about 25 minutes until set.','Grate the carrots and potato finely, squeezing out extra water. Finely dice the onion and crush the garlic.','Mix the vegetables with the flour and thyme.','Whisk the eggs in a separate bowl, stir in the oil, then mix into the vegetables.','Spoon a heaped tablespoon into the waffle iron, close and cook for about 7 minutes until golden.','Cool a little and cut into fingers. If they come out very crisp, cook a bit less next time so they stay soft enough to squash.'],
+  {kind:'Waffles & pancakes',fats:'rapeseed oil, egg yolk',allergens:'egg, wheat',src:{name:BLF,url:'https://www.babyledfeeding.com/recipe/baby-led-weaning-carrot-and-cheese-waffles/',note:'The original also has grated cheddar. I left it out. Ingredients and method follow the original, and the amounts are mine. A Belgian waffle maker works well.'}}),
+FR('parsnip-carrot-waffles','Parsnip & carrot waffles','🧇🥕','#EBC98A',15,15,'about 8 small waffles',
+  [['parsnip|parsnips',1,'',V],['carrot|carrots',1,'',V],['spring onion|spring onions',1,'',V],['fresh parsley',3,'sprig',V],['plain flour',4,'tbsp',C],['egg|eggs',2,'',F],['olive oil',2,'tbsp','skip']],
+  ['Grate the parsnip and carrot, ideally in a food processor. Squeeze out any juice if the mix feels wet.','Stir in the chopped spring onion, chopped parsley and flour.','Add the beaten eggs and a spoon of olive oil and mix until everything is coated.','Heat the waffle iron to medium and lightly oil it. Spoon in the mixture and spread it towards the edges.','Close and cook for about 5 minutes until golden and cooked through in the middle. Cool on a wire rack.','Cut into fingers and serve. Keep a few in the freezer for busy days.'],
+  {kind:'Waffles & pancakes',fats:'olive oil, egg yolk',allergens:'egg, wheat',src:{name:'Healthy Little Foodies (Amy Whiteford, food science and childhood nutrition)',url:'https://www.healthylittlefoodies.com/savoury-waffles/',note:'The original uses sweet potato and carrot with cheese. I swapped the sweet potato for parsnip, which is in season here, left out the cheese and added olive oil. Amounts are mine.'}}),
+FR('potato-pancakes-leek','Stuffed potato pancakes (leek & spinach)','🥔🥬','#D8D08A',20,30,'about 8 pancakes',
+  [['potato|potatoes',2,'',V],['plain flour',4,'tbsp',C],['leek|leeks',0.5,'',V],['baby spinach',30,'g',V],['garlic clove|garlic cloves',1,'',V],['olive oil',1,'tbsp','skip']],
+  ['Boil the potatoes until soft, then mash with no salt or butter and let them cool.','Finely dice the leek. Cook it with the crushed garlic in the olive oil until soft, add the spinach to wilt, then mash roughly and cool.','Mix the mashed potato with the flour until it comes together and is easy to handle. Add a little more flour if it is sticky.','Roll about 2 tablespoons of dough into a ball and press a well into the middle. Add a teaspoon of the vegetable filling and press the edges closed, sealing with a little extra potato.','Flatten slightly and bake at 180°C, turning once, until golden and firm (about 20 minutes), or pan-fry in a little oil.','Cool before serving. Egg-free, and they freeze well.'],
+  {kind:'Waffles & pancakes',fats:'olive oil',allergens:'wheat',src:{name:BLF,url:'https://www.babyledfeeding.com/recipe/stuffed-mashed-potato-pancakes-for-baby-led-weaning/',note:'The original has courgette, pepper, spring onion and spinach with grated cheese. I used leek and spinach and left out the cheese. Amounts and baking time are my estimates.'}})
+];
+Object.assign(SEASON,{
+ 'omelette-fingers':rng(9,4),'spinach-leek-egg-muffins':rng(9,4),'egg-broccoli-muffins':rng(6,11),'veg-pancakes':rng(9,11),
+ 'parsnip-carrot-waffles':rng(10,3),'potato-pancakes-leek':rng(9,4)
+});
+const RX=(id,name,type,emoji,color,prep,cook,makes,ing,steps,extra)=>Object.assign(R(id,name,type,emoji,color,prep,cook,makes,ing,steps),extra);
+RECIPES.push(
+RX('lentil-daal','Mild lentil daal (lentil, carrot & pumpkin)','Protein','🥕🎃','#F2B84A',15,25,'about 6 portions',
+  [['red lentils',80,'g',C],['carrot|carrots',1,'',V],['pumpkin',150,'g',V],['onion|onions',0.5,'',V],['garlic clove|garlic cloves',1,'',V],['grated fresh ginger',1,'tsp',V],['ground coriander',0.5,'tsp',C],['ground turmeric',0.5,'tsp',C],['olive oil',1,'tbsp','skip'],['unsalted vegetable stock or water',400,'ml','skip']],
+  ['Wash the lentils well and drain them.','Heat the olive oil in a saucepan over medium heat. Cook the finely chopped onion, garlic and ginger for 3–4 minutes until soft.','Stir in the coriander and turmeric for 1–2 minutes until fragrant.','Add the lentils, diced carrot and pumpkin, and stir to coat in the spices. Pour in the stock and bring to a simmer.','Cook for about 15 minutes until the lentils and vegetables are completely soft.','Mash or blend to the texture you want. A thick daal also works on a preloaded spoon. Cool before serving. It freezes well.'],
+  {fats:'olive oil',allergens:'',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/yellow-lentil-and-carrot-weaning-daal',note:'Method follows the original, which uses lentils, carrot and yellow pepper with vegetable stock. I swapped the pepper for pumpkin, which is in season here, and chose the amounts. Use an unsalted stock.'}})
+);
+FINGERS.push(
+FR('chickpea-fritters','Chickpea & veg fritters','🥕🫘','#E9C46A',5,15,'about 14 small fritters',
+  [['chickpea (gram) flour',100,'g',C],['baking powder',1,'tsp',C],['mild garam masala',1,'tsp',C],['ground turmeric',0.5,'tsp',C],['frozen peas, carrot and green beans, defrosted',100,'g',Z],['water',120,'ml','skip'],['olive oil, for frying',2,'tbsp','skip']],
+  ['Whisk the chickpea flour, baking powder, garam masala and turmeric in a bowl until smooth.','Pour in the water and stir to a thick batter. Chop the defrosted vegetables small and stir them in.','Heat the olive oil in a frying pan over medium-high heat. Add tablespoons of batter and cook for 3–4 minutes on each side until fully cooked.','Cool before serving. To freeze, lay in a single layer in a container for up to 3 months, then reheat in the toaster or a low oven.'],
+  {kind:'Beans & pulses',fats:'olive oil',allergens:'',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/chickpea-weaning-fritters',note:'Ingredients and method as in the original, which is egg-free and has no added salt. I could not see the original amounts, so the quantities are mine. I specify vegetables without sweetcorn.'}}),
+FR('chicken-chickpea-bites','Chicken & chickpea bites','🍗🫘','#E8B96A',10,20,'about 18 bites',
+  [['egg|eggs',1,'',F],['garlic clove|garlic cloves',2,'',V],['fresh parsley',30,'g',V],['no-added-salt chickpeas',1,'tin',C],['boneless skinless chicken thigh',250,'g',F],['mixed dried herbs',1,'tbsp',C],['olive oil, for frying',1,'tbsp','skip']],
+  ['Blend the egg, garlic and parsley in a food processor until the parsley is finely chopped and the egg is combined.','Add the drained, rinsed chickpeas, chopped chicken and dried herbs. Pulse to a chunky paste that holds together but still has some texture.','Shape into rounds of about 25 g each.','Heat a drizzle of olive oil in a pan. Add the rounds, press down to about 2.5 cm (1 inch) thick, and cook for 3–4 minutes on each side until golden and cooked through. Cut one open to check there is no pink and the juices run clear.','Cool before serving. To freeze uncooked, freeze on a lined tray then bag them. Cook from frozen at 200°C (180°C fan) for 25–30 minutes.'],
+  {kind:'Fish & meat',fats:'chicken thigh, olive oil',allergens:'egg',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/chicken-and-chickpea-weaning-bites',note:'Quantities and method as in the original.'}}),
+FR('beetroot-butterbean-hummus','Beetroot & butter bean hummus','🟣🫘','#C86A92',10,0,'about 8 portions',
+  [['butter beans (tin, no added salt)',1,'tin',C],['cooked beetroot (not in vinegar)',100,'g',V],['tahini',1,'tbsp',C],['lemon|lemons',0.5,'',V],['olive oil',2,'tbsp','skip']],
+  ['Drain and rinse the butter beans.','Put everything in a blender with the olive oil and a squeeze of lemon, and blend until smooth and spreadable. Add a spoon of water if it is too thick.','Serve as a dip with soft steamed or roasted vegetable sticks (carrot, parsnip, courgette), or soft bread or pitta fingers.','Sesame: if your baby has not had sesame yet, offer about ½ teaspoon first and watch for any reaction over the next couple of hours before offering more.','Keeps for 2–3 days in the fridge.'],
+  {kind:'Beans & pulses',fats:'tahini, olive oil',allergens:'sesame',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/beetroot-butterbean-weaning-hummus',note:'Method and the sesame advice follow the original. I could not see the original amounts, so the quantities are my estimates.'}})
+);
+Object.assign(SEASON,{'lentil-daal':rng(9,2),'beetroot-butterbean-hummus':rng(6,2)});
+const IRON={
+ 'beef-carrot-celeriac':'beef','chickpea-carrot':'chickpeas','lentil-carrot':'red lentils','lentil-daal':'red lentils',
+ 'sardine-pea-quinoa':'sardines, egg','beef-courgette-meatballs':'beef','omelette-fingers':'egg','spinach-leek-egg-muffins':'egg',
+ 'egg-broccoli-muffins':'egg','chickpea-fritters':'chickpeas','chicken-chickpea-bites':'chicken thigh, chickpeas, egg','beetroot-butterbean-hummus':'butter beans'
+};
+const PLANT_IRON=['chickpea-carrot','lentil-carrot','lentil-daal','chickpea-fritters','chicken-chickpea-bites','beetroot-butterbean-hummus'];
+FINGERS.push(
+FR('banana-oat-biscuits','Banana & oat biscuits','🍪🍌','#E6C98F',10,15,'about 12 biscuits',
+  [['ripe banana|ripe bananas',2,'',V],['rolled oats',100,'g',C],['ground cinnamon',0.5,'tsp',C],['rapeseed oil',1,'tbsp','skip']],
+  ['Heat the oven to 180°C (160°C fan) and line a tray with baking paper.','Blend half of the oats into a fine flour. Mash the bananas well in a bowl.','Stir in the oat flour, the remaining oats, the cinnamon and the rapeseed oil. Leave for 5 minutes so the oats soften.','Drop spoonfuls onto the tray and flatten into fingers or small rounds.','Bake for about 12–15 minutes until set and lightly golden. Cool completely before serving.','Keep in the fridge for up to 5 days, or freeze.'],
+  {kind:'Biscuits & fingers',fats:'rapeseed oil',allergens:'',src:{name:'MJ and Hungryman (Min, registered dietitian)',url:'https://www.mjandhungryman.com/banana-oatmeal-cookies/',note:'The original is a 3-ingredient cookie of banana, oats and cinnamon with no egg, dairy or added sugar. I added a spoon of rapeseed oil for healthy fat and chose the amounts and the baking time. Quick oats give the softest result.'}}),
+FR('pear-ginger-oat-fingers','Pear & ginger oat fingers','🍐🥣','#E9D9A0',10,25,'6 fingers',
+  [['pear|pears',1,'',V],['rolled porridge oats',60,'g',C],['milled flaxseed (linseed)',1,'tbsp',C],['ground ginger',0.25,'tsp',C],["water or your baby's usual milk",100,'ml','skip'],['rapeseed oil',1,'tbsp','skip']],
+  ['Heat the oven to 190°C (170°C fan). Line a small loaf tin with baking paper.','Coarsely grate the pear. Mix with the oats, milled flaxseed, ginger, oil and the liquid until sticky and well combined.','Press the mixture evenly into the tin.','Bake for about 20–25 minutes until set and lightly golden. Cool fully in the tin, then cut into fingers.','Keeps in the fridge for a few days and freezes well.'],
+  {kind:'Biscuits & fingers',fats:'milled flaxseed, rapeseed oil',allergens:'',src:{name:DK,url:'https://www.thedoctorskitchen.com/recipes/pear-and-ginger-porridge-weaning-fingers',note:'The original uses grated pear, ginger, rolled oats, milled flaxseed and cow\'s milk, baked in a lined loaf tin at 190°C (170°C fan). I replaced the milk with water or your baby\'s usual milk and added oil. Amounts and the baking time are my estimates.'}}),
+FR('lentil-rice-balls','Red lentil & rice balls','🫘🍚','#E4A15B',10,30,'about 16 small balls',
+  [['red lentils',100,'g',C],['rice',50,'g',C],['oat flour (or finely blended oats)',6,'tbsp',C],['olive oil',2,'tbsp','skip']],
+  ['Rinse the lentils. Simmer the lentils and rice together in plenty of water for 15–20 minutes until both are very soft. Drain well and let cool.','Mash lightly, then stir in the oat flour a little at a time until the mixture holds together when pinched.','Shape into small balls or short finger-shaped patties of about 1 tablespoon each.','Fry in the olive oil for 2–3 minutes on each side until lightly browned, or bake at 180°C for about 25 minutes, turning once.','Cool before serving. Serve with something rich in vitamin C.'],
+  {kind:'Balls & bites',fats:'olive oil',allergens:'',src:{name:'Plant-Based Juniors (Whitney English Tabaie and Alexandra Caspero, registered dietitians)',url:'https://jessicalevinson.com/nutrients-for-plant-based-babies/',note:'The original is a red lentil and rice (or bulgur) "meatball" bound with oat flour and fried in olive oil, shaped small for babies. I could not see the amounts, so the quantities are mine.'}}),
+FR('broccoli-mini-muffins','Broccoli mini muffins','🧁🥦','#C4D98F',15,25,'about 24 mini muffins',
+  [['plain flour',125,'g',C],['baking powder',1.5,'tsp',C],['garlic granules',0.5,'tsp',C],['fresh parsley',3,'sprig',V],['egg|eggs',1,'',F],["water or your baby's usual milk",120,'ml','skip'],['olive oil',3,'tbsp','skip'],['broccoli florets',100,'g',V]],
+  ['Heat the oven to 160°C. Oil a mini muffin tin.','Steam the broccoli until soft, cool it, then chop it very small.','Mix the flour, baking powder, garlic granules and chopped parsley in a bowl. Make a well in the middle.','Add the egg, liquid and olive oil and stir to a thick, smooth batter. Fold in the broccoli.','Divide between the mini muffin holes and bake for about 25 minutes, until a skewer comes out clean.','Cool, then serve whole or halved. They freeze well.'],
+  {kind:'Muffins & egg bites',fats:'olive oil, egg yolk',allergens:'egg, wheat',src:{name:BLF,url:'https://www.babyledfeeding.com/recipe/broccoli-and-cheesy-first-muffins-for-baby-led-weaning/',note:'The original also has milk and goat cheese. I left out the cheese (goat\'s milk is often not suitable for babies with a cow\'s milk allergy) and used water or your baby\'s usual milk. The method follows the original; the amounts are mine.'}})
+);
+Object.assign(SEASON,{'pear-ginger-oat-fingers':rng(8,3),'broccoli-mini-muffins':rng(6,11)});
+Object.assign(IRON,{'lentil-rice-balls':'red lentils'});
+PLANT_IRON.push('lentil-rice-balls');
+const KIND_MAP={
+ 'sardine-pea-quinoa':'Balls & bites','beef-courgette-meatballs':'Balls & bites','chicken-chickpea-bites':'Balls & bites','chickpea-fritters':'Balls & bites',
+ 'lemony-chicken-strips':'Strips & dips','beetroot-butterbean-hummus':'Strips & dips',
+ 'omelette-fingers':'Muffins & egg bites','spinach-leek-egg-muffins':'Muffins & egg bites','egg-broccoli-muffins':'Muffins & egg bites',
+ 'veg-pancakes':'Pancakes','potato-pancakes-leek':'Pancakes','carrot-potato-waffles':'Waffles','parsnip-carrot-waffles':'Waffles'
+};
+FINGERS.forEach(r=>{ if(KIND_MAP[r.id]) r.kind=KIND_MAP[r.id]; });
+const byId=Object.fromEntries(RECIPES.concat(COMPOTES,FINGERS).map(r=>[r.id,r]));
+Object.entries(IRON).forEach(([id,t])=>{byId[id].iron=t;});
+PLANT_IRON.forEach(id=>{byId[id].plant=true;});
+const NHSR='https://www.nhs.uk/best-start-in-life/baby/recipes-and-meal-ideas/';
+const NHSW='https://www.nhs.uk/best-start-in-life/baby/weaning/what-to-feed-your-baby/from-around-6-months/';
+const nhs=(how,name,slug,note,extra)=>Object.assign({how,name:'NHS Start for Life: '+name,url:NHSR+slug+'/',note},extra||{});
+const ROOT_NOTE='The NHS recipe uses carrot and sweet potato and suggests swapping in other root vegetables such as parsnip, butternut squash or celeriac. I use the same boil-and-mash method with the vegetables named here, and cooking water instead of milk.';
+const GREEN_NOTE='The NHS green mash shows how to make a mash from less sweet vegetables such as peas, courgettes and broccoli. I use the same cook-and-mash approach with the vegetables named here, with potato added, and cooking water instead of milk or cheese.';
+const FRUIT_NOTE='The NHS fruity stew cooks chopped apple in a little water for about 10 minutes until completely soft, then mashes it. I use the same stewing method with the fruit named here, with no sugar added.';
+const root=(note)=>nhs('Method based on','Root vegetable mash','root-vegetable-mash',note||ROOT_NOTE);
+const green=()=>nhs('Method based on','Green mash','green-mash',GREEN_NOTE);
+const fruit=(note,extra)=>nhs('Method based on','Fruity stew','fruity-stew',note||FRUIT_NOTE,extra);
+const OWN=(note)=>({how:'My own combination, guided by',name:'NHS Start for Life: What to feed your baby from around 6 months',url:NHSW,note});
+const SRCS={
+ 'stoemp-carrot':root(ROOT_NOTE+' Stoemp is the Belgian name for vegetables mashed with potato.'),
+ 'stoemp-leek':nhs('Method based on','Leek and potato','leek-and-potato','The NHS recipe boils the potato for 10 minutes, adds diced leek for 5 minutes, then mashes with milk. I follow the same method with cooking water instead of milk or butter.'),
+ 'kale-potato':green(),'sprout-potato':green(),'savoy-potato':green(),'cauliflower-potato':green(),'broccoli-potato':green(),
+ 'chicory-carrot-potato':green(),'courgette-potato':green(),'green-bean-potato':green(),'pea-mint':green(),'spinach-potato':green(),
+ 'asparagus-potato':green(),'mushroom-potato':green(),'kohlrabi-potato':green(),
+ 'pumpkin':root(),'pumpkin-carrot':root(),'celeriac-potato':root(),'parsnip-potato':root(),'carrot-parsnip':root(),
+ 'beetroot-potato':root(ROOT_NOTE+' Beetroot is not on the NHS list, but it cooks in the same way.'),
+ 'chicken-waterzooi':nhs('Method based on','Chicken and leek hotpot','chicken-and-leek-hotpot','The NHS hotpot cooks chicken, leeks, carrots, potatoes and green beans in water, then adds broccoli and cream cheese. I use the same one-pot idea without the green beans, broccoli and cream cheese, and blend it smooth. Waterzooi is the Flemish chicken stew that inspired the name.'),
+ 'chicken-carrot-potato':nhs('Method based on','Chicken and leek hotpot','chicken-and-leek-hotpot','The NHS hotpot simmers chicken with vegetables in water until everything is cooked, then chops or minces it. I use the same simmer-and-blend method with just chicken, carrot and potato, and no dairy.'),
+ 'cod-leek-potato':nhs('Method based on','Leek and potato','leek-and-potato','The leek and potato part follows the NHS recipe. For the fish, the NHS advises checking cooked fish for bones, and aiming for 2 portions of fish a week including 1 oily fish. I use white fish cooked with the vegetables.',{name2:'NHS Start for Life: Simple baked fish',url2:NHSR+'simple-baked-fish/'}),
+ 'beef-carrot-celeriac':root('The vegetables follow the NHS root vegetable mash method, which suggests celeriac as a swap. Adding beef mince is my own combination, so check it is cooked through with no pink.'),
+ 'chickpea-carrot':OWN('A simple combination of my own, not taken from a published recipe. The NHS guidance page covers what to feed from around 6 months.'),
+ 'lentil-carrot':{how:'Method based on',name:"The Doctor's Kitchen: Yellow Lentil and Carrot Weaning Daal",url:'https://www.thedoctorskitchen.com/recipes/yellow-lentil-and-carrot-weaning-daal',note:'Lentils and carrot simmered until soft, then blended, as in this weaning daal. Mine leaves out the spices, onion and pepper and adds potato.'},
+ 'apple-pear':fruit('The NHS fruity stew cooks chopped apple in a little water until completely soft. I use the same stewing method for apple and pear. The NHS steamed apple and pear is a finger food version of the same pair.',{name2:'NHS Start for Life: Steamed apple and pear',url2:NHSR+'steamed-apple-and-pear/'}),
+ 'apple-blueberry':nhs('Method based on','Apple and blueberry stew','apple-and-blueberry-stew','The NHS recipe simmers chopped apple and blueberries in water for about 10 minutes until completely soft. I use the same method, adding the blueberries partway through.'),
+ 'apple-cinnamon':fruit(FRUIT_NOTE+' The cinnamon is my addition.'),
+ 'pear-cinnamon':fruit('The NHS fruity stew uses apple; I use the same stewing method with pear and a little cinnamon, which are my own additions.'),
+ 'plum-apple':fruit(FRUIT_NOTE+' The fruit combination is my own.'),
+ 'raspberry-pear':fruit(FRUIT_NOTE+' The fruit combination is my own, and the sieving step removes the seeds.'),
+ 'pear-blackberry':fruit(FRUIT_NOTE+' The fruit combination is my own, and the sieving step removes the seeds.'),
+ 'strawberry-apple':fruit(FRUIT_NOTE+' The fruit combination is my own.'),
+ 'cherry-apple':fruit(FRUIT_NOTE+' The fruit combination is my own.'),
+ 'apricot-apple':fruit(FRUIT_NOTE+' The fruit combination is my own.')
+};
+Object.entries(SRCS).forEach(([id,x])=>{ if(byId[id]&&!byId[id].src) byId[id].src=x; });
+const SS='Solid Starts';
+const SS_COD='https://solidstarts.com/foods/cod/';
+const SS_SARD='https://solidstarts.com/foods/sardines/';
+const NHS_FISH=NHSR+'simple-baked-fish/';
+FINGERS.push(
+FR('salmon-fish-cakes','Salmon & potato fish cakes','🐟🥔','#F3B08F',20,15,'about 8 small cakes',
+  [['salmon fillet',120,'g',F],['potato|potatoes',1,'',V],['spring onion|spring onions',1,'',V],['fresh dill',2,'sprig',V],['egg|eggs',1,'',F],['olive oil, for frying',1,'tbsp','skip']],
+  ['Cook the salmon: bake at 180°C (fan) in a covered dish for about 20 minutes until cooked through and flaking. Leftover salmon works too. Cool, flake, and check carefully for bones.','Boil or bake the potato until soft, then mash it with no salt or butter and let it cool.','Mix the flaked salmon with the mashed potato, finely chopped spring onion and dill. Gently stir in the egg.','Shape into small cakes about 2 cm (¾ inch) thick. Cover and chill for at least 30 minutes.','Heat the olive oil in a non-stick pan over medium heat. Cook for about 2 minutes on each side until browned and hot in the centre.','Cool before serving. Serve with steamed vegetables.'],
+  {kind:'Balls & bites',fish:true,fats:'salmon, olive oil',allergens:'fish, egg',src:{name:'First Step Nutrition (Jennifer House, registered dietitian)',url:'https://firststepnutrition.com/blog/fishcakerecipe/',note:'From her book The Parents\' Guide to Baby-led Weaning. The original uses salmon, mashed potato, green onion, red pepper, dill, milk and egg, chilled for 30 minutes and cooked about 2 minutes per side. I left out the milk and pepper, cook in olive oil, and chose the amounts.'}}),
+FR('white-fish-cakes-beans','White fish cakes with green beans','🐟🫛','#E8D3A6',20,15,'about 10 small cakes',
+  [['white fish fillet (cod or pollock)',200,'g',F],['onion|onions',0.5,'',V],['garlic clove|garlic cloves',1,'',V],['lime|limes',0.5,'',V],['ground coriander',0.5,'tsp',C],['egg|eggs',1,'',F],['fresh coriander',3,'sprig',V],['plain flour',3,'tbsp',C],['green beans (or finely chopped broccoli in winter)',50,'g',V],['breadcrumbs',40,'g',C],['rapeseed oil',2,'tbsp','skip']],
+  ['Finely chop the onion. Heat a little rapeseed oil in a pan and fry the onion until golden, then add the crushed garlic for 2 more minutes.','Put the onion mixture in a food processor with the fish (checked carefully for bones), a squeeze of lime, the ground coriander, egg and fresh coriander. Blend until smooth and broken up.','Tip into a bowl and stir in the flour. Slice the green beans very finely and stir them in.','Shape into small cakes and roll them in the breadcrumbs.','Fry in a little rapeseed oil for about 3–4 minutes on each side until golden. Cut one open to check it is cooked through.','Cool before serving. The uncooked, breaded cakes can be frozen.'],
+  {kind:'Balls & bites',fish:true,fats:'rapeseed oil, egg yolk',allergens:'fish, egg, wheat',src:{name:BLF,url:'https://www.babyledfeeding.com/recipe/baby-led-weaning-finger-food-fish-cakes/',note:'The method follows the original, which says other fish such as tuna or salmon also work. It serves the cakes with Greek yoghurt, which I left out. I use cod or pollock, and the amounts are mine.'}}),
+FR('baked-salmon-flakes','Baked salmon flakes','🐟','#F2A98B',5,20,'1 portion',
+  [['salmon fillet',100,'g',F],['olive oil',1,'tsp','skip']],
+  ['Heat the oven to 180°C (fan).','Place the salmon in an ovenproof dish, drizzle with the olive oil, cover, and bake for about 20 minutes until cooked through and it flakes easily.','Let it cool, and check carefully for any bones that need removing.','Flake a quarter of the salmon into a bowl and serve. Keep the rest for fish cakes or a mash.','Serve with soft steamed vegetables or mash.'],
+  {kind:'Strips & dips',fish:true,fats:'salmon, olive oil',allergens:'fish',src:{name:NHS,url:NHS_FISH,note:'Method as in the NHS recipe, which also advises aiming for 2 portions of fish a week, including 1 oily fish. I added a drizzle of olive oil for healthy fat.'}}),
+FR('baked-cod-strips','Baked cod strips','🐟🍋','#EDE2C8',10,20,'1–2 portions',
+  [['cod or pollock fillet, skinless',150,'g',F],['olive oil',1,'tbsp','skip'],['lemon|lemons',0.5,'',V]],
+  ['Heat the oven to 180°C (fan).','Cut the fillet into strips about the size of two adult fingers pressed together.','Place in a dish, drizzle with the olive oil, add a squeeze of lemon, cover, and bake for about 15–20 minutes until opaque all the way through and flaking.','Run a finger through every strip to find and remove any bones, even in fillets sold as boneless.','Cool before serving. Keep the fish moist. Serve with steamed vegetables or mash.'],
+  {kind:'Strips & dips',fish:true,fats:'olive oil',allergens:'fish',src:{name:SS+': Cod for babies',url:SS_COD,note:'The strip size and the advice to remove every bone follow Solid Starts. The baking method follows the NHS simple baked fish recipe, which uses salmon. I use cod or pollock and add olive oil and lemon.',name2:'NHS Start for Life: Simple baked fish',url2:NHS_FISH,how:'Method based on'}})
+);
+RECIPES.push(
+RX('sardine-carrot-potato-mash','Sardine, carrot & potato mash','Protein','🐟🥕','#E7A878',10,20,'about 4 portions',
+  [['sardines in olive oil (no added salt)',60,'g',C],['potato|potatoes',1,'',V],['carrot|carrots',1,'',V],WATER],
+  ['Peel and chop the potato and carrot. Boil for 15–20 minutes until completely soft, then drain, keeping some of the water.','Mash the sardines very well in a bowl, breaking up every piece of soft bone.','Mash the vegetables, then stir in the sardines with a splash of the cooking water.','Cool and check the temperature before serving. Freeze in small portions.'],
+  {fish:true,fats:'sardines, olive oil',allergens:'fish',src:{how:'My own combination, guided by',name:SS+': Sardines for babies',url:SS_SARD,name2:"The Doctor's Kitchen: Sardine, pea and quinoa fritters",url2:'https://www.thedoctorskitchen.com/recipes/sardine-pea-and-quinoa-weaning-fritters',note:'Solid Starts suggests mashing sardines into cooked vegetables. Mashing thoroughly to break up the soft bones follows The Doctor\'s Kitchen sardine recipe. The combination and amounts are mine.'}}),
+RX('salmon-pea-potato-mash','Salmon, pea & potato mash','Protein','🐟🟢','#C9D49A',10,25,'about 4 portions',
+  [['salmon fillet',100,'g',F],['potato|potatoes',1,'',V],['frozen peas',80,'g',Z],['olive oil',1,'tsp','skip'],WATER],
+  ['Bake the salmon at 180°C (fan) in a covered dish for about 20 minutes until cooked through. Cool, flake, and check carefully for bones.','Peel and chop the potato and boil for 10 minutes. Add the peas for the last 3 minutes. Drain, keeping some of the water.','Mash the potato and peas with the olive oil and a splash of cooking water.','Fold in the flaked salmon. Cool before serving.'],
+  {fish:true,fats:'salmon, olive oil',allergens:'fish',src:{how:'Method based on',name:'NHS Start for Life: Simple baked fish',url:NHS_FISH,name2:'NHS Start for Life: Green mash',url2:NHSR+'green-mash/',note:'The salmon is baked as in the NHS recipe, and the pea and potato mash follows the NHS green mash approach, with cooking water instead of milk or cheese. The combination and amounts are mine.'}}),
+RX('white-fish-parsnip-potato-mash','White fish, parsnip & potato mash','Protein','🐟🥔','#EFE3BD',10,25,'about 4 portions',
+  [['white fish fillet (cod or pollock)',100,'g',F],['parsnip|parsnips',1,'',V],['potato|potatoes',1,'',V],['olive oil',1,'tsp','skip'],WATER],
+  ['Peel and chop the parsnip and potato and boil for about 12 minutes.','Lay the skinless fish on top, cover, and cook for 8–10 minutes until it turns white and flakes easily.','Lift out the fish, pull it apart with your fingers, and check carefully for bones even if the fillet was sold as boneless.','Drain the vegetables, keeping some water. Mash them with the olive oil and a splash of cooking water, then fold in the flaked fish.','Cool before serving.'],
+  {fish:true,fats:'olive oil',allergens:'fish',src:{how:'My own combination, guided by',name:SS+': Cod for babies',url:SS_COD,name2:'NHS Start for Life: Root vegetable mash',url2:NHSR+'root-vegetable-mash/',note:'Fish preparation and bone checking follow Solid Starts, and the vegetable mash follows the NHS root vegetable mash method. The combination and amounts are mine.'}})
+);
+Object.assign(IRON,{'sardine-carrot-potato-mash':'sardines','salmon-fish-cakes':'egg','white-fish-cakes-beans':'egg'});
+const FISH_IDS=['cod-leek-potato','sardine-pea-quinoa','salmon-fish-cakes','white-fish-cakes-beans','baked-salmon-flakes','baked-cod-strips','sardine-carrot-potato-mash','salmon-pea-potato-mash','white-fish-parsnip-potato-mash'];
+
+Object.keys(byId).forEach(k=>delete byId[k]);
+RECIPES.concat(COMPOTES,FINGERS).forEach(r=>{byId[r.id]=r;});
+Object.entries(IRON).forEach(([id,t])=>{byId[id].iron=t;});
+PLANT_IRON.forEach(id=>{byId[id].plant=true;});
+FISH_IDS.forEach(id=>{byId[id].fish=true;});
+Object.assign(byId['cod-leek-potato'],{fats:'olive oil',allergens:'fish'});
+Object.entries(SRCS).forEach(([id,x])=>{ if(byId[id]&&!byId[id].src) byId[id].src=x; });
+function ironTag(r){return r.iron?'<span class="badge iron">Iron-rich</span>':'';}
+const IRON_NOTE='Iron-rich recipes contain red meat, lentils, beans, chickpeas, sardines or egg. Iron from lentils, beans and chickpeas is absorbed better with vitamin C, so serve them with something like steamed broccoli, cooked tomato or fruit.';
+
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function inSeason(r,m=new Date().getMonth()+1){return (SEASON[r.id]||ALL).includes(m);}
+function seasonText(r){
+  const ms=SEASON[r.id]||ALL; if(ms.length===12) return 'all year';
+  const prev=m=>((m+10)%12)+1;
+  return ms.filter(m=>!ms.includes(prev(m))).map(st=>{let e=st; while(ms.includes(e%12+1)&&e%12+1!==st) e=e%12+1; return st===e?MN[st-1]:MN[st-1]+' to '+MN[e-1];}).join(', ');
+}
+function seasonTag(r){return inSeason(r)?'<span class="badge season">In season</span>':'';}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+const AISLES=[V,F,Z,C];
+
+/* ---------- State ---------- */
+let state={fb:{},notes:{},done:{},basket:[],checks:{}};
+let photos={};
+let tab='recipes', sfilter='all', filter='All', ffilter='All', cfilter='All', query='', fquery='', cquery='';
+let cur=null;
+const storageOK=typeof window.storage!=='undefined';
+const $=s=>document.querySelector(s);
+const main=$('#main');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function load(){
+  if(!storageOK) return;
+  try{const r=await window.storage.get('mash-state'); if(r&&r.value) state=Object.assign(state,JSON.parse(r.value));}catch(e){}
+  try{const p=await window.storage.get('mash-photos'); if(p&&p.value) photos=JSON.parse(p.value);}catch(e){}
+  state.done=state.done||{}; state.fb=state.fb||{}; state.notes=state.notes||{}; state.checks=state.checks||{};
+  state.basket=(Array.isArray(state.basket)?state.basket:[]).filter(id=>byId[id]);
+}
+function setStatus(t){const s=$('#status'); if(s) s.textContent=t;}
+let t1;
+function saveState(){
+  if(!storageOK) return;
+  clearTimeout(t1);
+  t1=setTimeout(async()=>{
+    try{const r=await window.storage.set('mash-state',JSON.stringify(state)); setStatus(r?'Saved':'Not saved');}
+    catch(e){setStatus('Not saved');}
+  },400);
+}
+async function savePhotos(){
+  if(!storageOK) return;
+  try{await window.storage.set('mash-photos',JSON.stringify(photos)); setStatus('Saved');}
+  catch(e){setStatus('Photo not saved');}
+}
+let toastT;
+function toast(msg){const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1900);}
+
+/* ---------- Formatting ---------- */
+function fmtNum(n){
+  if(Number.isInteger(n)) return String(n);
+  const w=Math.floor(n), f=n-w, m={0.25:'¼',0.5:'½',0.75:'¾'};
+  return (w?w:'')+(m[f]||f.toFixed(1));
+}
+function qtyText(it){
+  const q=it.qty, u=it.unit, names=it.name.split('|'), one=names[0], many=names[1]||names[0];
+  if(u==='g') return (q>=1000?fmtNum(q/1000)+' kg':fmtNum(q)+' g')+' '+one;
+  if(u==='ml') return fmtNum(q)+' ml '+one;
+  if(u==='tbsp'||u==='tsp') return fmtNum(q)+' '+u+' '+one;
+  if(u==='') return fmtNum(q)+' '+(q<=1?one:many);
+  return fmtNum(q)+' '+u+(q>1?'s':'')+' '+one;
+}
+const ingObj=a=>({name:a[0],qty:a[1],unit:a[2],aisle:a[3]});
+
+/* ---------- Illustration ---------- */
+function bowl(r){
+  return `<svg viewBox="0 0 200 150" role="img" aria-label="Illustration of ${esc(r.name)}" preserveAspectRatio="xMidYMid meet">
+  <ellipse cx="100" cy="134" rx="64" ry="8" style="fill:rgba(0,0,0,.10)"/>
+  <g transform="rotate(28 162 70)"><rect x="158" y="24" width="8" height="52" rx="4" style="fill:#C9B8A2"/><ellipse cx="162" cy="24" rx="12" ry="15" style="fill:#D9CAB6"/></g>
+  <path d="M28 80 Q28 130 100 130 Q172 130 172 80 Z" style="fill:var(--bowl);stroke:var(--bowl-edge);stroke-width:2"/>
+  <ellipse cx="100" cy="80" rx="72" ry="16" style="fill:var(--bowl);stroke:var(--bowl-edge);stroke-width:2"/>
+  <ellipse cx="100" cy="80" rx="63" ry="11" style="fill:${r.color}"/>
+  <path d="M42 80 Q58 38 100 36 Q142 38 158 80 Q100 94 42 80 Z" style="fill:${r.color}"/>
+  <path d="M42 80 Q100 94 158 80 Q158 86 100 90 Q42 86 42 80 Z" style="fill:rgba(0,0,0,.10)"/>
+  <path d="M68 66 Q100 50 134 64" style="fill:none;stroke:rgba(255,255,255,.45);stroke-width:4;stroke-linecap:round"/>
+  <path d="M78 76 Q100 68 124 74" style="fill:none;stroke:rgba(255,255,255,.35);stroke-width:3;stroke-linecap:round"/>
+  <path d="M94 44 Q100 38 108 42" style="fill:none;stroke:rgba(255,255,255,.5);stroke-width:3;stroke-linecap:round"/>
+  </svg>`;
+}
+function picHtml(r,cls=''){
+  const p=photos[r.id];
+  return `<div class="pic ${cls}" style="--mash:${r.color}">${p?`<img src="${p}" alt="Your photo of ${esc(r.name)}">`:bowl(r)}<span class="emoji" aria-hidden="true">${r.emoji}</span></div>`;
+}
+function badge(id){
+  const v=state.fb[id];
+  return v==='yes'?'<span class="badge yes">👍 Liked</span>':v==='no'?'<span class="badge no">👎 Not a fan</span>':'';
+}
+const timeText=r=>`Prep ${r.prep} min`+(r.cook?`, cook ${r.cook} min`:', no cooking');
+const COMPOTE_NOTE='No added sugar needed. Serve cool or lukewarm, on its own or stirred into a dairy-free porridge. All of these are free from cow\'s milk.';
+const SAFETY='All recipes are free from cow\'s milk and dairy. Still check labels on tinned or packaged foods. For babies from about 6 months, served warm, not hot, with no added salt or honey. Introduce new allergens one at a time. Each recipe page links to its source.';
+const FINGER_NOTE='Serve soft: a piece should squash easily between your finger and thumb. Seat baby upright, stay close, and cut into finger-sized strips. Gagging is common and different from choking. All recipes here are free from cow\'s milk, but check labels on tinned or packaged items. Recipes are adapted from the sources named on each one, and each page says what was changed.';
+const FISH_NOTE='Fish: introduce it on its own first, in a small amount. Check cooked fish for bones even in boneless fillets, use no added salt, and avoid smoked or salted fish. The NHS suggests 2 portions of fish a week, including 1 oily fish such as salmon or sardines, and avoiding shark, swordfish and marlin.';
+const FKINDS=['Muffins & egg bites','Biscuits & fingers','Pancakes','Waffles','Balls & bites','Strips & dips'];
+
+/* ---------- Shared list helpers ---------- */
+const STATUS=[['all','All'],['todo','Not done yet'],['done','Done']];
+function statusRow(items){
+  const d=items.filter(r=>state.done[r.id]).length, n=items.length;
+  const cnt={all:n,todo:n-d,done:d};
+  return `<div class="filters" role="group" aria-label="Show recipes by whether you have cooked them">${STATUS.map(([k,l])=>`<button class="schip" data-action="sfilter" data-s="${k}" aria-pressed="${sfilter===k}">${l} (${cnt[k]})</button>`).join('')}</div>`;
+}
+const statusOk=r=>sfilter==='all'||(sfilter==='done'?!!state.done[r.id]:!state.done[r.id]);
+function matches(r,q){
+  q=q.trim().toLowerCase(); if(!q) return true;
+  return r.name.toLowerCase().includes(q)||r.ing.some(i=>i[0].toLowerCase().includes(q));
+}
+function cardHtml(r){
+  const d=!!state.done[r.id];
+  return `<div class="rcard ${d?'done':''}">
+    <button class="rc-open" data-action="open" data-id="${r.id}">
+      ${picHtml(r)}
+      <span class="rc-text"><strong>${esc(r.name)}</strong><span class="meta">${r.prep+r.cook} min in total</span>${d?'<span class="badge done">✓ Done</span>':''}${seasonTag(r)}${ironTag(r)}${badge(r.id)}</span>
+    </button>
+    <button class="rc-done" data-action="done" data-id="${r.id}" aria-pressed="${d}" aria-label="${d?'Done. Tap to undo':'Mark as done'}: ${esc(r.name)}">✓</button>
+  </div>`;
+}
+function fillGrid(sel,list,emptyMsg){ $(sel).innerHTML=list.length?list.map(cardHtml).join(''):`<p class="empty">${emptyMsg}</p>`; }
+function doneLine(items){ const d=items.filter(r=>state.done[r.id]).length; const el=$('#doneline'); if(el) el.innerHTML=`<strong>${d}</strong> of ${items.length} done`; }
+
+/* ---------- Views ---------- */
+function renderMash(){
+  const chips=['All','Iron','Fish','Season','Veg','Protein'];
+  const lab={All:'All',Iron:'Iron-rich',Fish:'Fish',Season:'In season now',Veg:'Veg only',Protein:'With protein'};
+  main.innerHTML=`<h2 class="page-h">Savoury mash</h2>
+    <p class="doneline" id="doneline"></p>
+    ${statusRow(RECIPES)}
+    <input id="q" class="search" type="search" placeholder="Search by name or ingredient" value="${esc(query)}" aria-label="Search recipes">
+    <div class="filters" role="group" aria-label="Filter by type">${chips.map(f=>`<button class="fchip" data-action="filter" data-f="${f}" aria-pressed="${filter===f}">${lab[f]}</button>`).join('')}</div>
+    <div id="rlist" class="grid"></div>
+    <p class="note">${IRON_NOTE}</p>
+    <p class="note">${FISH_NOTE}</p>
+    <p class="note">${SAFETY}</p>`;
+  renderList();
+}
+function renderList(){
+  const list=RECIPES.filter(r=>statusOk(r)&&(filter==='All'||(filter==='Season'?inSeason(r):filter==='Iron'?!!r.iron:filter==='Fish'?!!r.fish:r.type===filter))&&matches(r,query));
+  fillGrid('#rlist',list,'Nothing here. Try a different word, or choose All.');
+  doneLine(RECIPES);
+}
+function renderFingers(){
+  const chips=['All','Iron','Fish','Season'].concat(FKINDS);
+  main.innerHTML=`<h2 class="page-h">Finger food</h2>
+    <p class="doneline" id="doneline"></p>
+    ${statusRow(FINGERS)}
+    <input id="fq" class="search" type="search" placeholder="Search by name or ingredient" value="${esc(fquery)}" aria-label="Search finger food">
+    <div class="filters" role="group" aria-label="Filter finger food">${chips.map(f=>`<button class="fchip" data-action="ffilter" data-f="${esc(f)}" aria-pressed="${ffilter===f}">${f==='Season'?'In season now':f==='Iron'?'Iron-rich':esc(f)}</button>`).join('')}</div>
+    <div id="flist" class="grid"></div>
+    <p class="note">${IRON_NOTE}</p>
+    <p class="note">${FISH_NOTE}</p>
+    <p class="note">${FINGER_NOTE}</p>`;
+  renderFList();
+}
+function renderFList(){
+  const list=FINGERS.filter(r=>statusOk(r)&&(ffilter==='All'||(ffilter==='Season'?inSeason(r):ffilter==='Iron'?!!r.iron:ffilter==='Fish'?!!r.fish:r.kind===ffilter))&&matches(r,fquery));
+  fillGrid('#flist',list,'Nothing here. Try a different word, or choose All.');
+  doneLine(FINGERS);
+}
+function renderCompotes(){
+  main.innerHTML=`<h2 class="page-h">Sweet compotes</h2>
+    <p class="doneline" id="doneline"></p>
+    ${statusRow(COMPOTES)}
+    <input id="cq" class="search" type="search" placeholder="Search by name or fruit" value="${esc(cquery)}" aria-label="Search compotes">
+    <div class="filters" role="group" aria-label="Filter compotes">${['All','Season'].map(f=>`<button class="fchip" data-action="cfilter" data-f="${f}" aria-pressed="${cfilter===f}">${f==='All'?'All':'In season now'}</button>`).join('')}</div>
+    <div id="clist" class="grid"></div>
+    <p class="note">${COMPOTE_NOTE}</p>`;
+  renderCList();
+}
+function renderCList(){
+  const list=COMPOTES.filter(r=>statusOk(r)&&(cfilter==='All'||inSeason(r))&&matches(r,cquery));
+  fillGrid('#clist',list,'Nothing here. Try a different fruit, or choose All.');
+  doneLine(COMPOTES);
+}
+
+function shoppingItems(){
+  const map={};
+  state.basket.map(id=>byId[id]).filter(Boolean).forEach(r=>{
+    r.ing.map(ingObj).forEach(it=>{
+      if(it.aisle==='skip') return;
+      const k=it.name.split('|')[0]+'|'+it.unit;
+      if(!map[k]) map[k]={k,name:it.name,unit:it.unit,aisle:it.aisle,qty:0,recipes:[]};
+      map[k].qty+=it.qty;
+      if(!map[k].recipes.includes(r.name)) map[k].recipes.push(r.name);
+    });
+  });
+  return Object.values(map).sort((a,b)=>AISLES.indexOf(a.aisle)-AISLES.indexOf(b.aisle)||a.name.localeCompare(b.name));
+}
+function renderShop(){
+  const rs=state.basket.map(id=>byId[id]).filter(Boolean);
+  if(!rs.length){
+    main.innerHTML=`<h2 class="page-h">Shopping list</h2>
+      <div class="empty-card"><p>Nothing here yet. Open any recipe and tap “Add to shopping list”. The ingredients of every recipe you add are combined here.</p></div>
+      <div class="actions"><button class="btn" data-action="tab" data-tab="recipes">Browse mash</button><button class="ghost" data-action="tab" data-tab="fingers">Browse finger food</button></div>`;
+    return;
+  }
+  const items=shoppingItems(), checks=state.checks||{};
+  const done=items.filter(i=>checks[i.k]).length;
+  const groups=AISLES.map(a=>{
+    const its=items.filter(i=>i.aisle===a); if(!its.length) return '';
+    return `<section class="aisle"><h2>${a}</h2>${its.map(it=>`
+      <label class="shop-item ${checks[it.k]?'done':''}">
+        <input type="checkbox" data-action="check" data-k="${esc(it.k)}" ${checks[it.k]?'checked':''}>
+        <span class="box" aria-hidden="true"></span>
+        <span class="txt"><strong>${esc(qtyText(it))}</strong><small>${it.recipes.map(esc).join(', ')}</small></span>
+      </label>`).join('')}</section>`;
+  }).join('');
+  main.innerHTML=`<h2 class="page-h">Shopping list</h2>
+    <div class="basket" aria-label="Recipes on the list">${rs.map(r=>`<span class="bchip">${esc(r.name)}<button data-action="rmbasket" data-id="${r.id}" aria-label="Remove ${esc(r.name)} from the list">×</button></span>`).join('')}</div>
+    <div class="progress" aria-hidden="true"><div id="pbar" style="width:${items.length?done/items.length*100:0}%"></div></div>
+    <p class="prog-text" id="ptext">${done} of ${items.length} ticked off</p>
+    ${groups}
+    <div class="actions"><button class="btn" data-action="copy">Copy list</button><button class="ghost" data-action="clearticks">Clear ticks</button><button class="ghost" data-action="clearlist">Empty the list</button></div>
+    <p class="note">Cooking water, oils and other kitchen staples aren't on the list.</p>`;
+}
+
+function render(){
+  document.querySelectorAll('.tab').forEach(b=>{ if(b.dataset.tab===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  if(tab==='recipes') renderMash(); else if(tab==='fingers') renderFingers(); else if(tab==='compotes') renderCompotes(); else renderShop();
+}
+
+/* ---------- Recipe sheet ---------- */
+function renderSheet(){
+  const r=byId[cur], photo=photos[r.id];
+  $('#sheet').innerHTML=`
+  <div class="sheet-bar"><div class="sheet-bar-in"><button class="back" data-action="close">‹ Back</button></div></div>
+  <article class="detail">
+    ${picHtml(r,'big')}
+    <div class="photo-actions">
+      <button class="ghost" data-action="photo">${photo?'Change photo':'Add your own photo'}</button>
+      ${photo?'<button class="ghost" data-action="rmphoto">Remove photo</button>':''}
+      <input type="file" id="file" accept="image/*" hidden>
+    </div>
+    <h1>${esc(r.name)}</h1>
+    <div class="chips"><span class="chip">Prep ${r.prep} min</span><span class="chip">${r.cook?`Cook ${r.cook} min`:'No cooking'}</span><span class="chip">Makes ${r.makes}</span><span class="chip">Season: ${seasonText(r)}</span>${r.fats?`<span class="chip fat">Healthy fats: ${esc(r.fats)}</span>`:''}${r.allergens?`<span class="chip warn">Contains ${esc(r.allergens)}</span>`:''}${r.iron?`<span class="chip iron">Iron: ${esc(r.iron)}</span>`:''}</div>
+    <h2>Ingredients</h2>
+    <ul class="ings">${r.ing.map(ingObj).map(it=>`<li class="${it.aisle==='skip'?'pantry':''}">${esc(qtyText(it))}</li>`).join('')}</ul>
+    <h2>Method</h2>
+    <ol class="steps">${r.steps.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol>
+    ${r.src?`<div class="srcbox"><strong>${esc(r.src.how||'Adapted from')}</strong><a href="${r.src.url}" target="_blank" rel="noopener noreferrer">${esc(r.src.name)}</a>${r.src.url2?`<br><a href="${r.src.url2}" target="_blank" rel="noopener noreferrer">${esc(r.src.name2)}</a>`:''}<p>${esc(r.src.note)}</p></div>`:''}
+    ${r.plant?`<div class="srcbox"><strong>Iron tip</strong><p>Iron from lentils, beans and chickpeas is absorbed better with vitamin C. Serve with something like steamed broccoli, cooked tomato or fruit.</p></div>`:''}
+    <h2>Your log</h2>
+    <div id="done-box"></div>
+    <div id="basket-box" class="gap"></div>
+    <h3 class="h3">How did baby find it?</h3>
+    <div id="fb-box" class="fb-row"></div>
+    <label class="lbl" for="notes">Notes</label>
+    <textarea id="notes" placeholder="Added more water, baby pulled a funny face…">${esc(state.notes[r.id]||'')}</textarea>
+  </article>`;
+  renderDone(); renderBasket(); renderFb();
+}
+function renderDone(){
+  const d=!!state.done[cur];
+  $('#done-box').innerHTML=`<button class="done-btn" data-action="sdone" aria-pressed="${d}"><span class="cb"></span>${d?'Done. Tap to undo':'Mark as done'}</button>`;
+}
+function renderBasket(){
+  const on=state.basket.includes(cur);
+  $('#basket-box').innerHTML=`<button class="${on?'ghost':'btn'} wide" data-action="basket" aria-pressed="${on}">${on?'On the shopping list. Tap to remove':'Add to shopping list'}</button>`;
+}
+function renderFb(){
+  const v=state.fb[cur];
+  $('#fb-box').innerHTML=`
+    <button class="fb-btn yes" data-action="fb" data-v="yes" aria-pressed="${v==='yes'}"><span class="cb"></span>Baby liked it</button>
+    <button class="fb-btn no" data-action="fb" data-v="no" aria-pressed="${v==='no'}"><span class="cb"></span>Not a fan</button>`;
+}
+function openRecipe(id){
+  cur=id; renderSheet();
+  const s=$('#sheet'); s.classList.add('open'); s.scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  $('#sheet').classList.remove('open'); document.body.style.overflow='';
+  cur=null; render();
+}
+
+/* ---------- Photos ---------- */
+function handleFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const s=Math.min(1,720/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');
+      c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      photos[cur]=c.toDataURL('image/jpeg',0.8);
+      savePhotos(); renderSheet(); toast('Photo added');
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ---------- Events ---------- */
+function keepPlace(fn,focusSel){
+  const y=window.scrollY; fn();
+  window.scrollTo(0,y);
+  if(focusSel){const el=document.querySelector(focusSel); if(el) el.focus();}
+}
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-action]'); if(!el) return;
+  const a=el.dataset.action;
+  switch(a){
+    case 'tab': tab=el.dataset.tab; render(); window.scrollTo(0,0); break;
+    case 'open': openRecipe(el.dataset.id); break;
+    case 'close': closeSheet(); break;
+    case 'done': { const id=el.dataset.id; if(state.done[id]) delete state.done[id]; else state.done[id]=true; saveState();
+      keepPlace(render,`[data-action="done"][data-id="${id}"]`); toast(state.done[id]?'Marked as done':'Marked as not done'); break; }
+    case 'sdone': { if(state.done[cur]) delete state.done[cur]; else state.done[cur]=true; saveState(); renderDone(); toast(state.done[cur]?'Marked as done':'Marked as not done'); break; }
+    case 'sfilter': sfilter=el.dataset.s; keepPlace(render); break;
+    case 'filter': filter=el.dataset.f; document.querySelectorAll('[data-action="filter"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===filter))); renderList(); break;
+    case 'ffilter': ffilter=el.dataset.f; document.querySelectorAll('[data-action="ffilter"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===ffilter))); renderFList(); break;
+    case 'cfilter': cfilter=el.dataset.f; document.querySelectorAll('[data-action="cfilter"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===cfilter))); renderCList(); break;
+    case 'basket': { const i=state.basket.indexOf(cur); if(i>=0) state.basket.splice(i,1); else state.basket.push(cur); saveState(); renderBasket(); toast(i>=0?'Removed from the shopping list':'Added to the shopping list'); break; }
+    case 'rmbasket': { state.basket=state.basket.filter(id=>id!==el.dataset.id); saveState(); keepPlace(renderShop); break; }
+    case 'fb': { const v=el.dataset.v; if(state.fb[cur]===v) delete state.fb[cur]; else state.fb[cur]=v; saveState(); renderFb(); break; }
+    case 'photo': $('#file').click(); break;
+    case 'rmphoto': delete photos[cur]; savePhotos(); renderSheet(); toast('Photo removed'); break;
+    case 'clearticks': state.checks={}; saveState(); renderShop(); break;
+    case 'clearlist': state.basket=[]; state.checks={}; saveState(); renderShop(); break;
+    case 'copy': copyList(); break;
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.action==='check'){
+    state.checks=state.checks||{};
+    if(t.checked) state.checks[t.dataset.k]=true; else delete state.checks[t.dataset.k];
+    t.closest('.shop-item').classList.toggle('done',t.checked);
+    const items=shoppingItems(), done=items.filter(i=>state.checks[i.k]).length;
+    $('#ptext').textContent=`${done} of ${items.length} ticked off`;
+    $('#pbar').style.width=(items.length?done/items.length*100:0)+'%';
+    saveState();
+  } else if(t.id==='file'){ handleFile(t.files[0]); }
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='q'){query=t.value; renderList();}
+  else if(t.id==='fq'){fquery=t.value; renderFList();}
+  else if(t.id==='cq'){cquery=t.value; renderCList();}
+  else if(t.id==='notes'){state.notes[cur]=t.value; saveState();}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&$('#sheet').classList.contains('open')) closeSheet();
+});
+
+function copyList(){
+  const items=shoppingItems();
+  let txt='Baby food shopping list\n';
+  AISLES.forEach(a=>{
+    const its=items.filter(i=>i.aisle===a); if(!its.length) return;
+    txt+=`\n${a}\n`+its.map(i=>`[ ] ${qtyText(i)}`).join('\n')+'\n';
+  });
+  const done=()=>toast('List copied');
+  const fallback=()=>{const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); done();}catch(e){toast('Could not copy');} ta.remove();};
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,fallback); else fallback();
+}
+
+/* ---------- Start ---------- */
+(async()=>{
+  await load();
+  if(!storageOK) setStatus("Changes won't be kept");
+  render();
+})();
+</script>
+</body>
+</html>
